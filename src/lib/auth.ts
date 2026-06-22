@@ -11,7 +11,10 @@ import bcrypt from 'bcryptjs'
 import { db } from './db'
 import { users, profiles } from './schema'
 
+import { authConfig } from './auth.config'
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: 'credentials',
@@ -25,7 +28,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = (credentials.email as string).toLowerCase().trim()
         const password = credentials.password as string
 
-        // Buscar usuário pelo email
         const [user] = await db
           .select({
             id: users.id,
@@ -55,26 +57,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  session: { strategy: 'jwt' },
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.isSuperadmin = (user as any).isSuperadmin || false
-      }
-      return token
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        ;(session.user as any).isSuperadmin = token.isSuperadmin as boolean
-      }
-      return session
-    },
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login',
-  },
   secret: process.env.AUTH_SECRET,
 })

@@ -1,22 +1,19 @@
-/**
- * Middleware de autenticação — substitui Supabase SSR Auth
- * Usa NextAuth para proteger rotas (authenticated)
- */
-import { auth } from '@/lib/auth'
+import NextAuth from 'next-auth'
+import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export default auth((req) => {
+const { auth } = NextAuth(authConfig)
+
+export default auth((req: any) => {
   const { pathname } = req.nextUrl
   const isLoggedIn = !!req.auth
 
-  // Rotas públicas — acessar sem sessão
   const publicPaths = ['/login', '/api/auth', '/api/webhooks', '/api/funnels/tick']
   const isPublic = publicPaths.some((p) => pathname.startsWith(p))
 
   if (isPublic) return NextResponse.next()
 
-  // Redireciona para login se não autenticado
   if (!isLoggedIn) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
