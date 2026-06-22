@@ -1,26 +1,24 @@
-/**
- * Neon Database Client
- * Substitui: @supabase/supabase-js (lado servidor)
- *
- * Uso: import { db } from '@/lib/db'
- * Exemplo: const leads = await db.select().from(schema.leads).where(...)
- */
 import { neon, neonConfig } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import * as schema from './schema'
 
-// Em Edge Runtime, usa WebSocket da Cloudflare
 neonConfig.fetchConnectionCache = true
 
-const databaseUrl = process.env.DATABASE_URL || process.env.whatsapp_DATABASE_URL
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
 
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL não definida nas variáveis de ambiente')
+function getDb() {
+  if (!_db) {
+    const url = process.env.DATABASE_URL || process.env.whatsapp_DATABASE_URL
+    if (!url) throw new Error('DATABASE_URL não definida nas variáveis de ambiente')
+    _db = drizzle(neon(url), { schema })
+  }
+  return _db
 }
 
-const sql = neon(databaseUrl)
-export const db = drizzle(sql, { schema })
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
+  get(_, prop) {
+    return (getDb() as any)[prop]
+  },
+})
 
-// Exporta também o cliente sql puro para queries raw quando necessário
-export { sql as rawSql }
 export type DB = typeof db
