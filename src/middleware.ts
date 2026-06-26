@@ -9,8 +9,10 @@ export function middleware(req: NextRequest) {
 
   if (isPublic) return NextResponse.next()
 
-  // Verifica existência do cookie de sessão NextAuth (JWT validado nos server components/API routes)
+  // NextAuth v5 usa "authjs.session-token" (v4 usava "next-auth.session-token")
   const sessionToken =
+    req.cookies.get('__Secure-authjs.session-token') ??
+    req.cookies.get('authjs.session-token') ??
     req.cookies.get('next-auth.session-token') ??
     req.cookies.get('__Secure-next-auth.session-token')
 
