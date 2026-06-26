@@ -9,6 +9,9 @@ export function middleware(req: NextRequest) {
 
   if (isPublic) return NextResponse.next()
 
+  // Requisições com Bearer token (API externa, n8n, etc.) passam direto — auth é validada no handler
+  if (req.headers.get('authorization')?.startsWith('Bearer ')) return NextResponse.next()
+
   // NextAuth v5 usa "authjs.session-token" (v4 usava "next-auth.session-token")
   const sessionToken =
     req.cookies.get('__Secure-authjs.session-token') ??
