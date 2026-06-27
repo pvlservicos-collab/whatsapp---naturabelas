@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@/lib/db'
 import { integrationMessageLogs } from '@/lib/schema'
 
-const ORGANIZATION_ID = 'bdfac9ab-68cd-4434-856c-897199dc267d'
+const ORGANIZATION_ID = '91a7f4af-9e58-4e30-906b-b0ebc9386da4'
 
 /**
  * POST /api/webhooks/n8n-log

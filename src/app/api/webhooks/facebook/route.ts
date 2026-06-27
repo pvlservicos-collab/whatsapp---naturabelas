@@ -154,8 +154,20 @@ export async function POST(req: NextRequest) {
       }
 
       if (!content) content = MEDIA_LABELS[message.type] || '[Mídia recebida]'
+    } else if (message.type === 'button') {
+      content = message.button?.text || message.button?.payload || '[Botão pressionado]'
+    } else if (message.type === 'interactive') {
+      content =
+        message.interactive?.button_reply?.title ||
+        message.interactive?.list_reply?.title ||
+        '[Resposta interativa]'
+    } else if (message.type === 'reaction') {
+      content = `Reagiu: ${message.reaction?.emoji || '👍'}`
+    } else if (message.type === 'location') {
+      const loc = message.location
+      content = `📍 Localização: ${loc?.name || `${loc?.latitude}, ${loc?.longitude}`}`
     } else if (!content) {
-      content = '[Mídia recebida]'
+      content = '[Mensagem recebida]'
     }
 
     // Buscar ou criar lead
