@@ -1,4 +1,4 @@
-/**
+q-/**
  * NextAuth v5 — substitui Supabase Auth
  *
  * Estratégia: Credentials (email + password com bcrypt)
