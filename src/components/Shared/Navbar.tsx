@@ -16,7 +16,8 @@ import {
   Buildings,
   ListBullets,
   FlowArrow,
-  Phone,
+  Truck,
+  CurrencyDollar,
 } from '@phosphor-icons/react'
 import { useAuth, usePipeline } from '@/hooks' // Kept usePipeline from '@/hooks'
 import { signOut } from 'next-auth/react'
@@ -26,14 +27,13 @@ import NotificationDropdown from '@/components/Shared/NotificationDropdown'
 import { usePipelineFilters } from '@/contexts/FilterContext'
 
 const NAV_ITEMS = [
-  // { label: 'Dashboard', href: '/', icon: ChartBar }, // Temporariamente desativado
   { label: 'Pipeline', href: '/pipeline', icon: Kanban },
-  { label: 'API Oficial', href: '/chat', icon: ChatCircleDots },
-  { label: 'Número 2', href: '/chat-evolution', icon: Phone },
-  // { label: 'Leads', href: '/leads', icon: Users }, // Temporariamente desativado
+  { label: 'Chat', href: '/chat', icon: ChatCircleDots },
   { label: 'Funil de Mensagens', href: '/funnels', icon: FlowArrow },
   { label: 'Logs', href: '/logs', icon: ListBullets },
   { label: 'Métricas', href: '/metrics', icon: ChartBar },
+  { label: 'Logística', href: '/logistica', icon: Truck },
+  { label: 'Financeiro', href: '/financeiro', icon: CurrencyDollar },
   { label: 'Configurações', href: '/settings/organization', icon: Gear },
 ]
 
@@ -96,8 +96,9 @@ export default function Navbar() {
       case 'Dashboard': return !!permissions.settings?.view_dashboard
       case 'Leads': return !!permissions.settings?.view_leads
       case 'Pipeline': return !!permissions.settings?.view_pipeline
-      case 'API Oficial': return !!permissions.settings?.view_chat
-      case 'Número 2': return !!permissions.settings?.view_chat
+      case 'Chat': return !!permissions.settings?.view_chat
+      case 'Logística': return !!permissions.settings?.view_settings
+      case 'Financeiro': return !!permissions.settings?.view_settings
       case 'Funil de Mensagens': return !!permissions.settings?.view_settings
       case 'Logs': return !!permissions.settings?.view_settings
       case 'Métricas': return !!permissions.settings?.view_settings

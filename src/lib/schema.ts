@@ -142,6 +142,14 @@ export const leads = pgTable('leads', {
   email: text('email'),
   phone: text('phone'),
   avatarUrl: text('avatar_url'),
+  cpf: text('cpf'),
+  cep: text('cep'),
+  address: text('address'),
+  addressNumber: text('address_number'),
+  addressComplement: text('address_complement'),
+  neighborhood: text('neighborhood'),
+  city: text('city'),
+  state: text('state'),
   aiInterestLevel: text('ai_interest_level'),
   aiNextActionShort: text('ai_next_action_short'),
   customAttributes: jsonb('custom_attributes').default({}),
@@ -346,5 +354,55 @@ export const funnelResponseEvents = pgTable('funnel_response_events', {
   executionId: uuid('execution_id').notNull().references(() => funnelExecutions.id, { onDelete: 'cascade' }),
   blockId: uuid('block_id').notNull(),
   branch: funnelBranchEnum('branch').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+})
+
+// ── Produtos ──────────────────────────────────────────────────────────────────
+export const products = pgTable('products', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  organizationId: uuid('organization_id').notNull().references(() => organizations.id),
+  name: text('name').notNull(),
+  description: text('description'),
+  price: numeric('price', { precision: 15, scale: 2 }).notNull().default('0'),
+  status: text('status').notNull().default('active'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+})
+
+// ── Pedidos ───────────────────────────────────────────────────────────────────
+export const orders = pgTable('orders', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  organizationId: uuid('organization_id').notNull().references(() => organizations.id),
+  leadId: uuid('lead_id').references(() => leads.id, { onDelete: 'set null' }),
+  paymentMethod: text('payment_method').notNull().default('pix'),
+  paymentStatus: text('payment_status').notNull().default('pending'),
+  deliveryStatus: text('delivery_status').notNull().default('pending'),
+  totalValue: numeric('total_value', { precision: 15, scale: 2 }).notNull().default('0'),
+  notes: text('notes'),
+  customerName: text('customer_name'),
+  customerPhone: text('customer_phone'),
+  customerEmail: text('customer_email'),
+  customerCpf: text('customer_cpf'),
+  customerCep: text('customer_cep'),
+  customerAddress: text('customer_address'),
+  customerAddressNumber: text('customer_address_number'),
+  customerAddressComplement: text('customer_address_complement'),
+  customerNeighborhood: text('customer_neighborhood'),
+  customerCity: text('customer_city'),
+  customerState: text('customer_state'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+})
+
+// ── Itens do Pedido ───────────────────────────────────────────────────────────
+export const orderItems = pgTable('order_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  orderId: uuid('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').notNull(),
+  productId: uuid('product_id').references(() => products.id, { onDelete: 'set null' }),
+  productName: text('product_name').notNull(),
+  quantity: integer('quantity').notNull().default(1),
+  unitPrice: numeric('unit_price', { precision: 15, scale: 2 }).notNull().default('0'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 })

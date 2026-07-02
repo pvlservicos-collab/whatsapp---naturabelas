@@ -96,10 +96,15 @@ const LeadListItem = ({ lead, isSelected, onClick, onContextMenu, timeStr, hit, 
                             </div>
                         )}
 
-                        {/* Tags below message if they exist */}
-                        {lead.lead_tags && lead.lead_tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                                {lead.lead_tags.map((lt: any) => {
+                        {/* Channel tag + lead tags */}
+                        {(lead.integration_id || (lead.lead_tags && lead.lead_tags.length > 0)) && (
+                            <div className="flex flex-wrap gap-1 mt-1.5 items-center">
+                                {lead.integration_id && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(139,92,246,0.15)', color: '#a78bfa' }}>
+                                        Nº 2
+                                    </span>
+                                )}
+                                {lead.lead_tags && lead.lead_tags.map((lt: any) => {
                                     const tag = lt.tag
                                     if (!tag) return null
                                     const isHex = tag.color?.startsWith('#')
@@ -128,6 +133,7 @@ export default memo(LeadListItem, (prevProps, nextProps) => {
         prevProps.lead.updated_at === nextProps.lead.updated_at &&
         prevProps.lead.is_unread === nextProps.lead.is_unread &&
         prevProps.lead.last_message_sender_type === nextProps.lead.last_message_sender_type &&
+        prevProps.lead.integration_id === nextProps.lead.integration_id &&
         prevProps.isSelected === nextProps.isSelected &&
         prevProps.hideReplyHighlight === nextProps.hideReplyHighlight &&
         prevProps.timeStr === nextProps.timeStr &&

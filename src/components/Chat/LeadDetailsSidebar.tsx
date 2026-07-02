@@ -17,7 +17,8 @@ import {
   CaretDown,
   CaretRight,
   Pause,
-  ChatText
+  ChatText,
+  ShoppingCart,
 } from '@phosphor-icons/react'
 import { CustomFieldDefinition, LeadWithOwner, PipelineStage, LeadStageHistory, Pipeline } from '@/lib/types'
 import { useSession } from 'next-auth/react'
@@ -30,6 +31,7 @@ import DebouncedInput from '@/components/Shared/DebouncedInput'
 import IntegrationBadge from '@/components/Shared/IntegrationBadge'
 import CustomFieldSelect from '@/components/Shared/CustomFieldSelect'
 import CustomFieldMultiSelect from '@/components/Shared/CustomFieldMultiSelect'
+import OrderModal from './OrderModal'
 
 interface LeadDetailsSidebarProps {
   lead: LeadWithOwner
@@ -76,6 +78,7 @@ export default function LeadDetailsSidebar({
   const [editingNameValue, setEditingNameValue] = useState(lead.title)
   const editNameInputRef = useRef<HTMLInputElement>(null)
 
+  const [showOrderModal, setShowOrderModal] = useState(false)
   const [webhookStatus, setWebhookStatus] = useState<{
     key: ChatButtonKey
     status: 'sending' | 'success' | 'error'
@@ -191,6 +194,7 @@ export default function LeadDetailsSidebar({
   const displayTags = tagsLoading ? (lead.lead_tags || []) : leadTags
 
   return (
+    <>
     <div className="w-72 border-l border-[#2f3b44] flex flex-col flex-shrink-0 overflow-y-auto bg-[#111b21] chat-dark-scroll">
       <div className="p-5 space-y-5">
         {/* Lead Avatar + Name + Tags */}
@@ -344,6 +348,15 @@ export default function LeadDetailsSidebar({
             </div>
           </div>
         </div>
+
+        {/* Marcar Venda */}
+        <button
+          onClick={() => setShowOrderModal(true)}
+          className="w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 transition-colors"
+        >
+          <ShoppingCart size={16} weight="fill" />
+          Marcar venda concluída
+        </button>
 
         <div className="border-t border-[#2f3b44]" />
 
@@ -611,5 +624,14 @@ export default function LeadDetailsSidebar({
         />
       </div>
     </div>
+
+    {showOrderModal && (
+      <OrderModal
+        lead={lead}
+        organizationId={lead.organization_id}
+        onClose={() => setShowOrderModal(false)}
+      />
+    )}
+    </>
   )
 }
