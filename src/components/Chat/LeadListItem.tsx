@@ -17,9 +17,25 @@ interface LeadListItemProps {
     hideReplyHighlight?: boolean
 }
 
+const PAYMENT_METHOD_TAGS: Record<string, { label: string; style: React.CSSProperties }> = {
+    pix: { label: 'PIX', style: { backgroundColor: 'rgba(34,197,94,0.15)', color: '#4ade80' } },
+    credit_card: { label: 'Cartão', style: { backgroundColor: 'rgba(59,130,246,0.15)', color: '#60a5fa' } },
+    boleto: { label: 'Boleto', style: { backgroundColor: 'rgba(251,146,60,0.15)', color: '#fb923c' } },
+    dinheiro: { label: 'Dinheiro', style: { backgroundColor: 'rgba(52,211,153,0.15)', color: '#34d399' } },
+}
+
+const PAYMENT_STATUS_TAGS: Record<string, { label: string; style: React.CSSProperties }> = {
+    pending: { label: 'Pendente', style: { backgroundColor: 'rgba(234,179,8,0.15)', color: '#facc15' } },
+    paid: { label: 'Pago', style: { backgroundColor: 'rgba(34,197,94,0.15)', color: '#4ade80' } },
+    refunded: { label: 'Reembolsado', style: { backgroundColor: 'rgba(239,68,68,0.15)', color: '#f87171' } },
+}
+
 const LeadListItem = ({ lead, isSelected, onClick, onContextMenu, timeStr, hit, query, hideReplyHighlight }: LeadListItemProps) => {
     const defaultMsg = lead.last_activity_type ? 'Ver conversa' : 'Sem mensagens'
     const lastMsg = lead.last_message_content || defaultMsg
+
+    const orderPaymentMethod = lead.custom_attributes?.last_order_payment_method as string | undefined
+    const orderPaymentStatus = lead.custom_attributes?.last_order_payment_status as string | undefined
 
     let SenderIcon = null
     let iconColor = ''
@@ -96,12 +112,22 @@ const LeadListItem = ({ lead, isSelected, onClick, onContextMenu, timeStr, hit, 
                             </div>
                         )}
 
-                        {/* Channel tag + lead tags */}
-                        {(lead.integration_id || (lead.lead_tags && lead.lead_tags.length > 0)) && (
+                        {/* Channel tag + order status tags + lead tags */}
+                        {(lead.integration_id || orderPaymentMethod || (lead.lead_tags && lead.lead_tags.length > 0)) && (
                             <div className="flex flex-wrap gap-1 mt-1.5 items-center">
                                 {lead.integration_id && (
                                     <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(139,92,246,0.15)', color: '#a78bfa' }}>
                                         Nº 2
+                                    </span>
+                                )}
+                                {orderPaymentMethod && PAYMENT_METHOD_TAGS[orderPaymentMethod] && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0" style={PAYMENT_METHOD_TAGS[orderPaymentMethod].style}>
+                                        {PAYMENT_METHOD_TAGS[orderPaymentMethod].label}
+                                    </span>
+                                )}
+                                {orderPaymentStatus && PAYMENT_STATUS_TAGS[orderPaymentStatus] && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0" style={PAYMENT_STATUS_TAGS[orderPaymentStatus].style}>
+                                        {PAYMENT_STATUS_TAGS[orderPaymentStatus].label}
                                     </span>
                                 )}
                                 {lead.lead_tags && lead.lead_tags.map((lt: any) => {
@@ -134,6 +160,8 @@ export default memo(LeadListItem, (prevProps, nextProps) => {
         prevProps.lead.is_unread === nextProps.lead.is_unread &&
         prevProps.lead.last_message_sender_type === nextProps.lead.last_message_sender_type &&
         prevProps.lead.integration_id === nextProps.lead.integration_id &&
+        prevProps.lead.custom_attributes?.last_order_payment_status === nextProps.lead.custom_attributes?.last_order_payment_status &&
+        prevProps.lead.custom_attributes?.last_order_payment_method === nextProps.lead.custom_attributes?.last_order_payment_method &&
         prevProps.isSelected === nextProps.isSelected &&
         prevProps.hideReplyHighlight === nextProps.hideReplyHighlight &&
         prevProps.timeStr === nextProps.timeStr &&

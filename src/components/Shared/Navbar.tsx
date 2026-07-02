@@ -14,12 +14,14 @@ import {
   Gear,
   SignOut,
   Buildings,
-  ListBullets,
   FlowArrow,
   Truck,
   CurrencyDollar,
+  Sun,
+  Moon,
 } from '@phosphor-icons/react'
-import { useAuth, usePipeline } from '@/hooks' // Kept usePipeline from '@/hooks'
+import { useAuth, usePipeline } from '@/hooks'
+import { useTheme } from '@/contexts/ThemeContext'
 import { signOut } from 'next-auth/react'
 import FilterButton from '@/components/Shared/FilterButton'
 import GlobalSearch from '@/components/Shared/GlobalSearch'
@@ -30,7 +32,6 @@ const NAV_ITEMS = [
   { label: 'Pipeline', href: '/pipeline', icon: Kanban },
   { label: 'Chat', href: '/chat', icon: ChatCircleDots },
   { label: 'Funil de Mensagens', href: '/funnels', icon: FlowArrow },
-  { label: 'Logs', href: '/logs', icon: ListBullets },
   { label: 'Métricas', href: '/metrics', icon: ChartBar },
   { label: 'Logística', href: '/logistica', icon: Truck },
   { label: 'Financeiro', href: '/financeiro', icon: CurrencyDollar },
@@ -40,7 +41,8 @@ const NAV_ITEMS = [
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { organizationId, permissions, isMaster, roleName, user, profileName, loading: authLoading } = useAuth() // Added user, profileName, authLoading
+  const { organizationId, permissions, isMaster, roleName, user, profileName, loading: authLoading } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const searchParams = useSearchParams()
   const pipelineIdParam = searchParams.get('pipelineId')
   const { pipelines, selectedPipelineId } = usePipeline(organizationId || '')
@@ -108,13 +110,13 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 h-14 flex items-center justify-between sticky top-0 z-50">
+    <nav className="dark-nav bg-white dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] px-6 h-14 flex items-center justify-between sticky top-0 z-50">
       {/* Left: Logo + Nav */}
       <div className="flex items-center gap-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <img src="/logos/Atlas.svg" alt="Atlas Eye Logo" className="h-6 w-auto object-contain" />
-          <span className="font-display font-bold text-gray-900">Atlas Eye</span>
+          <span className="font-display font-bold text-gray-900 dark:text-[#e6edf3]">Atlas Eye</span>
         </Link>
 
         {/* Nav Tabs */}
@@ -136,8 +138,8 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-600 dark:text-[#8b949e] hover:bg-gray-100 dark:hover:bg-[#21262d] hover:text-gray-900 dark:hover:text-[#e6edf3]'
                       }`}
                   >
                     <Icon size={16} weight={isActive ? 'fill' : 'regular'} />
@@ -205,6 +207,15 @@ export default function Navbar() {
         {/* Notifications */}
         <NotificationDropdown />
 
+        {/* Dark mode toggle */}
+        <button
+          onClick={toggleTheme}
+          title={isDark ? 'Modo claro' : 'Modo escuro'}
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-[#8b949e] hover:bg-gray-100 dark:hover:bg-[#21262d] transition-colors"
+        >
+          {isDark ? <Sun size={18} weight="fill" className="text-yellow-400" /> : <Moon size={18} />}
+        </button>
+
         {/* User Dropdown */}
         <div className="relative" ref={userDropdownRef}>
           <div
@@ -220,13 +231,13 @@ export default function Navbar() {
                 <span className="text-purple-600 text-xs font-bold">{initials}</span>
               </div>
             )}
-            <span className="text-sm font-medium text-gray-700 truncate max-w-[120px]">{displayName}</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-[#adbac7] truncate max-w-[120px]">{displayName}</span>
             <CaretDown size={14} className={`text-gray-400 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
           </div>
 
           {/* User Menu Popup */}
           {showUserDropdown && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg shadow-gray-200/50 py-1 z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[#1c2128] border border-gray-100 dark:border-[#30363d] rounded-xl shadow-lg shadow-gray-200/50 py-1 z-50 animate-in fade-in slide-in-from-top-2">
               <Link
                 href="/workspaces"
                 onClick={() => setShowUserDropdown(false)}

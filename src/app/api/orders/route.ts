@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { authenticateRequest, apiError } from '@/lib/api-auth'
 import { db } from '@/lib/db'
-import { orders, orderItems } from '@/lib/schema'
-import { eq, and, desc, gte, lte } from 'drizzle-orm'
+import { orders, orderItems, leads } from '@/lib/schema'
+import { eq, and, desc, gte, lte, sql } from 'drizzle-orm'
 
 export async function GET(req: NextRequest) {
   try {
@@ -101,6 +101,22 @@ export async function POST(req: NextRequest) {
     }))
 
     const insertedItems = await db.insert(orderItems).values(itemValues).returning()
+
+    // Store last order info on the lead's customAttributes for display in lead list
+    if (body.lead_id) {
+      await db.execute(sql`
+        UPDATE leads
+        SET custom_attributes = jsonb_set(
+          jsonb_set(
+            COALESCE(custom_attributes, '{}'),
+            '{last_order_payment_status}', ${JSON.stringify(order.paymentStatus)}::jsonb
+          ),
+          '{last_order_payment_method}', ${JSON.stringify(order.paymentMethod)}::jsonb
+        ),
+        updated_at = NOW()
+        WHERE id = ${body.lead_id} AND organization_id = ${auth.organizationId}
+      `)
+    }
 
     return Response.json({ data: { ...order, items: insertedItems } }, { status: 201 })
   } catch (err: any) {

@@ -46,6 +46,58 @@
 }
 
 /* ============================================
+   DARK MODE — Light-section overrides
+   Affects Pipeline, Settings, Logística, Financeiro, Metrics etc.
+   Chat sections are already dark and use hardcoded colors, so they are unaffected.
+   ============================================ */
+.dark nav.bg-white,
+.dark .dark-nav {
+  background-color: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+/* Cards / panels */
+.dark .bg-white { background-color: #161b22 !important; }
+.dark .bg-gray-50 { background-color: #0d1117 !important; }
+.dark .bg-gray-100 { background-color: #1c2128 !important; }
+.dark .bg-gray-200 { background-color: #21262d !important; }
+
+/* Borders */
+.dark .border-gray-100 { border-color: #21262d !important; }
+.dark .border-gray-200 { border-color: #30363d !important; }
+.dark .border-gray-300 { border-color: #3d444d !important; }
+.dark .divide-gray-50 > * + * { border-color: #1c2128 !important; }
+.dark .divide-y { --tw-divide-opacity: 1; }
+
+/* Text */
+.dark .text-gray-900 { color: #e6edf3 !important; }
+.dark .text-gray-800 { color: #cdd9e5 !important; }
+.dark .text-gray-700 { color: #adbac7 !important; }
+.dark .text-gray-600 { color: #768390 !important; }
+.dark .text-gray-500 { color: #636e7b !important; }
+.dark .text-gray-400 { color: #545d68 !important; }
+
+/* Inputs */
+.dark input:not([class*="bg-["]):not([class*="bg-[#"]),
+.dark textarea:not([class*="bg-["]):not([class*="bg-[#"]),
+.dark select:not([class*="bg-["]):not([class*="bg-[#"]) {
+  background-color: #1c2128 !important;
+  border-color: #30363d !important;
+  color: #e6edf3 !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder { color: #636e7b !important; }
+
+/* Tables */
+.dark thead tr,
+.dark .bg-gray-50\/50 { background-color: #161b22 !important; }
+.dark tbody tr:hover { background-color: #1c2128 !important; }
+
+/* Shadows — soften in dark mode */
+.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
+
+/* ============================================
    GLOBAL MODAL ANIMATIONS
    ============================================ */
 @keyframes modalOverlayIn {

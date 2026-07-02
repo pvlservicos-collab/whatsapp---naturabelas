@@ -3,6 +3,7 @@ import '@/globals.css'
 import { SessionProvider } from 'next-auth/react'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'Atlas Eye CRM',
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
@@ -19,14 +20,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="bg-gray-50 text-gray-900 font-sans" suppressHydrationWarning>
-        <SessionProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              {children}
-            </NotificationProvider>
-          </AuthProvider>
-        </SessionProvider>
+      <body className="bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] font-sans transition-colors duration-200" suppressHydrationWarning>
+        <ThemeProvider>
+          <SessionProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
+            </AuthProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
