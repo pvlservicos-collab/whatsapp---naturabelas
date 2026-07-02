@@ -449,6 +449,7 @@ function MessageBubble({
   // Lead — left side
   const senderName = activity.metadata?.sender_name || activity.actor?.profiles?.full_name || lead.title || 'Lead'
   const initials = senderName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const isEvolution = activity.metadata?.source === 'evolution'
 
   return (
     <div className="flex items-start gap-2.5 group/msg">
@@ -467,6 +468,11 @@ function MessageBubble({
         {showHeader && (
           <div className="flex items-center gap-1.5 mb-1 ml-1">
             <span className="text-xs font-semibold text-[#8696a0]">{senderName}</span>
+            {isEvolution && (
+              <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>
+                Nº 2
+              </span>
+            )}
           </div>
         )}
         <div className="relative">
@@ -480,7 +486,13 @@ function MessageBubble({
               <ArrowBendUpLeft size={14} weight="bold" className="text-[#aebac1]" />
             </button>
           )}
-          <div className={`relative bg-[#202c33] rounded-2xl px-3 pt-2 pb-1.5 border border-white/5 shadow-sm min-w-[80px] ${showHeader ? 'rounded-tl-[2px]' : ''}`}>
+          <div
+            className={`relative rounded-2xl px-3 pt-2 pb-1.5 border shadow-sm min-w-[80px] ${showHeader ? 'rounded-tl-[2px]' : ''}`}
+            style={isEvolution
+              ? { backgroundColor: '#1e1a2e', borderColor: 'rgba(139,92,246,0.2)' }
+              : { backgroundColor: '#202c33', borderColor: 'rgba(255,255,255,0.05)' }
+            }
+          >
             <QuotedMessageBar metadata={activity.metadata} isOutgoing={false} />
             {activity.metadata?.media_url && (
               <MediaRenderer metadata={activity.metadata} isOutgoing={false} onImageClick={onImageClick} senderAvatar={lead.avatar_url} />
