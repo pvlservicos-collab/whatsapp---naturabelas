@@ -4,23 +4,11 @@ import * as schema from './schema'
 
 neonConfig.fetchConnectionCache = true
 
-let _db: ReturnType<typeof drizzle<typeof schema>> | null = null
+const databaseUrl = process.env.DATABASE_URL || process.env.whatsapp_DATABASE_URL
 
-function getDb() {
-  if (!_db) {
-    const url = process.env.DATABASE_URL || process.env.whatsapp_DATABASE_URL
-    if (!url) throw new Error('DATABASE_URL não definida nas variáveis de ambiente')
-    _db = drizzle(neon(url), { schema })
-  }
-  return _db
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL não definida nas variáveis de ambiente')
 }
 
-export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
-  get(_, prop) {
-    const instance = getDb() as any
-    const value = instance[prop]
-    return typeof value === 'function' ? value.bind(instance) : value
-  },
-})
-
+export const db = drizzle(neon(databaseUrl), { schema })
 export type DB = typeof db
