@@ -23,36 +23,45 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: 'Senha', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        try {
+          if (!credentials?.email || !credentials?.password) return null
 
-        const email = (credentials.email as string).toLowerCase().trim()
-        const password = credentials.password as string
+          const email = (credentials.email as string).toLowerCase().trim()
+          const password = credentials.password as string
 
-        const [user] = await db
-          .select({
-            id: users.id,
-            email: users.email,
-            passwordHash: users.passwordHash,
-            fullName: profiles.fullName,
-            avatarUrl: profiles.avatarUrl,
-            isSuperadmin: profiles.isSuperadmin,
-          })
-          .from(users)
-          .leftJoin(profiles, eq(profiles.id, users.id))
-          .where(eq(users.email, email))
-          .limit(1)
+          const [user] = await db
+            .select({
+              id: users.id,
+              email: users.email,
+              passwordHash: users.passwordHash,
+              fullName: profiles.fullName,
+              avatarUrl: profiles.avatarUrl,
+              isSuperadmin: profiles.isSuperadmin,
+            })
+            .from(users)
+            .leftJoin(profiles, eq(profiles.id, users.id))
+            .where(eq(users.email, email))
+            .limit(1)
 
-        if (!user) return null
+          console.log('[authorize] user found:', user?.email ?? 'none')
 
-        const valid = await bcrypt.compare(password, user.passwordHash)
-        if (!valid) return null
+          if (!user) return null
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.fullName || user.email,
-          image: user.avatarUrl,
-          isSuperadmin: user.isSuperadmin || false,
+          const valid = await bcrypt.compare(password, user.passwordHash)
+          console.log('[authorize] password valid:', valid)
+
+          if (!valid) return null
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.fullName || user.email,
+            image: user.avatarUrl,
+            isSuperadmin: user.isSuperadmin || false,
+          }
+        } catch (err) {
+          console.error('[authorize] error:', err)
+          return null
         }
       },
     }),
