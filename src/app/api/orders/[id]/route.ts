@@ -22,7 +22,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .from(orderItems)
       .where(eq(orderItems.orderId, id))
 
-    return Response.json({ data: { ...order, items } })
+    return Response.json({ data: {
+      id: order.id,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      delivery_status: order.deliveryStatus,
+      total_value: order.totalValue,
+      notes: order.notes,
+      customer_name: order.customerName,
+      customer_phone: order.customerPhone,
+      created_at: order.createdAt,
+      updated_at: order.updatedAt,
+      items: items.map(i => ({
+        id: i.id,
+        product_name: i.productName,
+        quantity: i.quantity,
+        unit_price: i.unitPrice,
+      })),
+    }})
   } catch (err: any) {
     return apiError(err.status || 500, err.message || 'Erro interno.')
   }
@@ -48,7 +65,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .returning()
 
     if (!order) return apiError(404, 'Pedido não encontrado.')
-    return Response.json({ data: order })
+    return Response.json({ data: {
+      id: order.id,
+      payment_method: order.paymentMethod,
+      payment_status: order.paymentStatus,
+      delivery_status: order.deliveryStatus,
+      total_value: order.totalValue,
+      notes: order.notes,
+      customer_name: order.customerName,
+      customer_phone: order.customerPhone,
+      created_at: order.createdAt,
+      updated_at: order.updatedAt,
+    }})
   } catch (err: any) {
     return apiError(err.status || 500, err.message || 'Erro interno.')
   }

@@ -4,6 +4,41 @@ import { db } from '@/lib/db'
 import { orders, orderItems, leads } from '@/lib/schema'
 import { eq, and, desc, gte, lte, sql } from 'drizzle-orm'
 
+function toSnake(o: any, items: any[] = []) {
+  return {
+    id: o.id,
+    organization_id: o.organizationId,
+    lead_id: o.leadId,
+    payment_method: o.paymentMethod,
+    payment_status: o.paymentStatus,
+    delivery_status: o.deliveryStatus,
+    total_value: o.totalValue,
+    notes: o.notes,
+    customer_name: o.customerName,
+    customer_phone: o.customerPhone,
+    customer_email: o.customerEmail,
+    customer_cpf: o.customerCpf,
+    customer_cep: o.customerCep,
+    customer_address: o.customerAddress,
+    customer_address_number: o.customerAddressNumber,
+    customer_address_complement: o.customerAddressComplement,
+    customer_neighborhood: o.customerNeighborhood,
+    customer_city: o.customerCity,
+    customer_state: o.customerState,
+    created_at: o.createdAt,
+    updated_at: o.updatedAt,
+    items: items.map(i => ({
+      id: i.id,
+      order_id: i.orderId,
+      product_id: i.productId,
+      product_name: i.productName,
+      quantity: i.quantity,
+      unit_price: i.unitPrice,
+      created_at: i.createdAt,
+    })),
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const auth = await authenticateRequest(req)
@@ -29,23 +64,21 @@ export async function GET(req: NextRequest) {
       .limit(limit)
       .offset(offset)
 
-    // Fetch items for each order
-    const orderIds = rows.map(o => o.id)
-    let items: any[] = []
-    if (orderIds.length > 0) {
-      items = await db
+    let allItems: any[] = []
+    if (rows.length > 0) {
+      allItems = await db
         .select()
         .from(orderItems)
         .where(eq(orderItems.organizationId, auth.organizationId))
     }
 
-    const itemsByOrder = items.reduce((acc: Record<string, any[]>, item) => {
+    const itemsByOrder = allItems.reduce((acc: Record<string, any[]>, item) => {
       if (!acc[item.orderId]) acc[item.orderId] = []
       acc[item.orderId].push(item)
       return acc
     }, {})
 
-    const data = rows.map(o => ({ ...o, items: itemsByOrder[o.id] || [] }))
+    const data = rows.map(o => toSnake(o, itemsByOrder[o.id] || []))
 
     return Response.json({ data })
   } catch (err: any) {
@@ -102,7 +135,7 @@ export async function POST(req: NextRequest) {
 
     const insertedItems = await db.insert(orderItems).values(itemValues).returning()
 
-    // Store last order info on the lead's customAttributes for display in lead list
+    // Salva último status do pedido no lead para exibir tags na lista
     if (body.lead_id) {
       await db.execute(sql`
         UPDATE leads
@@ -118,7 +151,7 @@ export async function POST(req: NextRequest) {
       `)
     }
 
-    return Response.json({ data: { ...order, items: insertedItems } }, { status: 201 })
+    return Response.json({ data: toSnake(order, insertedItems) }, { status: 201 })
   } catch (err: any) {
     return apiError(err.status || 500, err.message || 'Erro interno.')
   }
