@@ -7,6 +7,8 @@ import {
 } from '@/lib/schema'
 import { eq, and, isNull, desc, asc, ilike, sql } from 'drizzle-orm'
 import { sendWhatsAppMessage, sendWhatsAppMedia } from '@/lib/whatsapp'
+import { sendEvolutionMessage, sendEvolutionMedia } from '@/lib/evolution'
+import { integrations } from '@/lib/schema'
 
 /**
  * GET /api/leads/[id]/messages
@@ -152,16 +154,42 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (body.media_url) metadata.media_url = body.media_url
     if (body.media_type) metadata.media_type = body.media_type
 
-    // Envia de fato pelo WhatsApp Cloud API quando for mensagem de saída
-    // (skip_send: true quando o envio já foi feito por um sistema externo, ex: n8n)
+    // Determina o canal de envio pelo integration_id do lead
     if (direction === 'outbound' && body.type === 'whatsapp' && !body.skip_send) {
       const phone = lead?.phone || decodedPhone
+
+      // Lookup lead's integration type
+      let integrationTyp = 'whatsapp_cloud_official'
+      if (lead) {
+        const [fullLead] = await db
+          .select({ integrationId: leads.integrationId })
+          .from(leads)
+          .where(eq(leads.id, actualLeadId!))
+          .limit(1)
+        if (fullLead?.integrationId) {
+          const [integ] = await db
+            .select({ type: integrations.type })
+            .from(integrations)
+            .where(eq(integrations.id, fullLead.integrationId))
+            .limit(1)
+          if (integ?.type) integrationTyp = integ.type
+        }
+      }
+
       try {
-        const result = body.media_url
-          ? await sendWhatsAppMedia(auth.organizationId, phone, body.media_type, body.media_url, body.content, body.media_filename)
-          : await sendWhatsAppMessage(auth.organizationId, phone, body.content)
-        metadata.whatsapp_message_id = result?.messages?.[0]?.id
-        metadata.send_status = 'sent'
+        if (integrationTyp === 'whatsapp_evolution') {
+          const result = body.media_url
+            ? await sendEvolutionMedia(auth.organizationId, phone, body.media_type, body.media_url, body.content, body.media_filename)
+            : await sendEvolutionMessage(auth.organizationId, phone, body.content)
+          metadata.send_status = 'sent'
+          metadata.evolution_message_id = result?.key?.id
+        } else {
+          const result = body.media_url
+            ? await sendWhatsAppMedia(auth.organizationId, phone, body.media_type, body.media_url, body.content, body.media_filename)
+            : await sendWhatsAppMessage(auth.organizationId, phone, body.content)
+          metadata.whatsapp_message_id = result?.messages?.[0]?.id
+          metadata.send_status = 'sent'
+        }
       } catch (err: any) {
         metadata.send_status = 'failed'
         metadata.send_error = err.message || 'Erro ao enviar mensagem.'

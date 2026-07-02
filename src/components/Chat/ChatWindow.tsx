@@ -12,6 +12,7 @@ interface ChatWindowProps {
   lead: LeadWithOwner
   organizationId: string
   onMessageSent?: (content: string) => void
+  isDark?: boolean
 }
 
 export interface ReplyContext {
@@ -20,7 +21,7 @@ export interface ReplyContext {
   sender: string
 }
 
-export default function ChatWindow({ lead, organizationId, onMessageSent }: ChatWindowProps) {
+export default function ChatWindow({ lead, organizationId, onMessageSent, isDark }: ChatWindowProps) {
   const { activities, loading, sendHumanMessage, sendMediaMessage } = useLeadActivities(organizationId, lead.id)
   const { currentOrganization } = useAuth()
   const { settings: chatButtonSettings, fireWebhook } = useChatButtonSettings()
@@ -93,7 +94,7 @@ export default function ChatWindow({ lead, organizationId, onMessageSent }: Chat
     <div
       className="flex flex-col h-full relative overflow-x-hidden"
       style={{
-        backgroundColor: '#0b141a',
+        backgroundColor: isDark ? '#070e13' : '#0b141a',
         backgroundImage: `url('/chat-bg.svg')`,
         backgroundRepeat: 'repeat',
         backgroundSize: 'auto',

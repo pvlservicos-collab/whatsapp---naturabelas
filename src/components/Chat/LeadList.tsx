@@ -14,6 +14,7 @@ interface LeadListProps {
   onSelectLead: (lead: LeadWithOwner) => void
   onUpdateLead?: (leadId: string, updates: Partial<LeadWithOwner>) => void
   loading: boolean
+  isDark?: boolean
 }
 
 const WEEKDAYS_PT = [
@@ -62,6 +63,7 @@ export default function LeadList({
   onSelectLead,
   onUpdateLead,
   loading,
+  isDark,
 }: LeadListProps) {
   const [search, setSearch] = useState('')
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
@@ -215,7 +217,7 @@ export default function LeadList({
   const visibleHits = filteredHits.slice(0, displayLimit)
 
   return (
-    <div className="flex flex-col h-full bg-[#111b21] border-r border-[#2f3b44]">
+    <div className={`flex flex-col h-full border-r border-[#2f3b44] ${isDark ? 'bg-[#0d1419]' : 'bg-[#111b21]'}`}>
       {/* Search Bar */}
       <div className="p-3 border-b border-[#2f3b44]">
         <div className="relative">
@@ -225,7 +227,7 @@ export default function LeadList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar leads..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-[#2f3b44] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#53bdeb] bg-[#202c33] text-[#e9edef] placeholder-[#8696a0] transition-shadow"
+            className={`w-full pl-9 pr-3 py-2 text-sm border border-[#2f3b44] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#53bdeb] text-[#e9edef] placeholder-[#8696a0] transition-shadow ${isDark ? 'bg-[#192229]' : 'bg-[#202c33]'}`}
           />
         </div>
       </div>

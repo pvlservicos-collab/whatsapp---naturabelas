@@ -11,11 +11,12 @@ import {
   MagnifyingGlass,
   Plus,
   CaretDown,
-  Gear, // Changed from GearSix
-  SignOut, // Added
+  Gear,
+  SignOut,
   Buildings,
   ListBullets,
   FlowArrow,
+  Phone,
 } from '@phosphor-icons/react'
 import { useAuth, usePipeline } from '@/hooks' // Kept usePipeline from '@/hooks'
 import { signOut } from 'next-auth/react'
@@ -27,7 +28,8 @@ import { usePipelineFilters } from '@/contexts/FilterContext'
 const NAV_ITEMS = [
   // { label: 'Dashboard', href: '/', icon: ChartBar }, // Temporariamente desativado
   { label: 'Pipeline', href: '/pipeline', icon: Kanban },
-  { label: 'Chat', href: '/chat', icon: ChatCircleDots },
+  { label: 'API Oficial', href: '/chat', icon: ChatCircleDots },
+  { label: 'Número 2', href: '/chat-evolution', icon: Phone },
   // { label: 'Leads', href: '/leads', icon: Users }, // Temporariamente desativado
   { label: 'Funil de Mensagens', href: '/funnels', icon: FlowArrow },
   { label: 'Logs', href: '/logs', icon: ListBullets },
@@ -94,7 +96,8 @@ export default function Navbar() {
       case 'Dashboard': return !!permissions.settings?.view_dashboard
       case 'Leads': return !!permissions.settings?.view_leads
       case 'Pipeline': return !!permissions.settings?.view_pipeline
-      case 'Chat': return !!permissions.settings?.view_chat
+      case 'API Oficial': return !!permissions.settings?.view_chat
+      case 'Número 2': return !!permissions.settings?.view_chat
       case 'Funil de Mensagens': return !!permissions.settings?.view_settings
       case 'Logs': return !!permissions.settings?.view_settings
       case 'Métricas': return !!permissions.settings?.view_settings
