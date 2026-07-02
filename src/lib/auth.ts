@@ -43,12 +43,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .where(eq(users.email, email))
             .limit(1)
 
-          console.log('[authorize] user found:', user?.email ?? 'none')
-
           if (!user) return null
 
           const valid = await bcrypt.compare(password, user.passwordHash)
-          console.log('[authorize] password valid:', valid)
 
           if (!valid) return null
 
@@ -59,8 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: user.avatarUrl,
             isSuperadmin: user.isSuperadmin || false,
           }
-        } catch (err) {
-          console.error('[authorize] error:', err)
+        } catch {
           return null
         }
       },
